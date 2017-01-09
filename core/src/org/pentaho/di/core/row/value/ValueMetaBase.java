@@ -1092,7 +1092,9 @@ public class ValueMetaBase implements ValueMetaInterface {
     }
     if ( length >= 3 ) {
       return bool.booleanValue() ? "true" : "false";
-    } else {
+    } else if (length == -2){
+      return bool.booleanValue() ? "1" : "0";
+    }else {
       return bool.booleanValue() ? "Y" : "N";
     }
   }

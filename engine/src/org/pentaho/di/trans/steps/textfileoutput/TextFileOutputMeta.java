@@ -202,6 +202,8 @@ public class TextFileOutputMeta extends BaseStepMeta implements StepMetaInterfac
 
   @Injection( name = "DATE_FORMAT" )
   private String dateTimeFormat;
+  
+  private Boolean boolToInt;
 
   public TextFileOutputMeta() {
     super(); // allocate BaseStepMeta
@@ -723,6 +725,8 @@ public class TextFileOutputMeta extends BaseStepMeta implements StepMetaInterfac
       if ( endedLine == null ) {
         endedLine = "";
       }
+      
+      boolToInt = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "file", "bool_to_int" ) );
 
       fileName = loadSource( stepnode, metastore );
       fileAsCommand = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "file", "is_command" ) );
@@ -826,6 +830,8 @@ public class TextFileOutputMeta extends BaseStepMeta implements StepMetaInterfac
     fastDump = false;
     addToResultFilenames = true;
     splitEvery = 0;
+    
+    boolToInt = false;
 
     newline = getNewLine( fileFormat );
 
@@ -1011,6 +1017,7 @@ public class TextFileOutputMeta extends BaseStepMeta implements StepMetaInterfac
     retval.append( "      " ).append( XMLHandler.addTagValue( "do_not_open_new_file_init", doNotOpenNewFileInit ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "extention", extension ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "append", fileAppended ) );
+    retval.append( "      " ).append( XMLHandler.addTagValue( "bool_to_int", boolToInt ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "split", stepNrInFilename ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "haspartno", partNrInFilename ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "add_date", dateInFilename ) );
@@ -1077,6 +1084,7 @@ public class TextFileOutputMeta extends BaseStepMeta implements StepMetaInterfac
       doNotOpenNewFileInit = rep.getStepAttributeBoolean( id_step, "do_not_open_new_file_init" );
       extension = rep.getStepAttributeString( id_step, "file_extention" );
       fileAppended = rep.getStepAttributeBoolean( id_step, "file_append" );
+      boolToInt = rep.getStepAttributeBoolean( id_step, "bool_to_int" );
       splitEvery = (int) rep.getStepAttributeInteger( id_step, "file_split" );
       stepNrInFilename = rep.getStepAttributeBoolean( id_step, "file_add_stepnr" );
       partNrInFilename = rep.getStepAttributeBoolean( id_step, "file_add_partnr" );
@@ -1155,6 +1163,8 @@ public class TextFileOutputMeta extends BaseStepMeta implements StepMetaInterfac
       rep.saveStepAttribute( id_transformation, id_step, "file_fast_dump", fastDump );
       rep.saveStepAttribute( id_transformation, id_step, "fileNameInField", fileNameInField );
       rep.saveStepAttribute( id_transformation, id_step, "fileNameField", fileNameField );
+      
+      rep.saveStepAttribute( id_transformation, id_step, "bool_to_int", boolToInt );
 
       for ( int i = 0; i < outputFields.length; i++ ) {
         TextFileField field = outputFields[i];
@@ -1300,4 +1310,12 @@ public class TextFileOutputMeta extends BaseStepMeta implements StepMetaInterfac
     throws KettleException {
     rep.saveStepAttribute( id_transformation, id_step, "file_name", fileName );
   }
+
+public Boolean getBoolToInt() {
+	return boolToInt;
+}
+
+public void setBoolToInt(Boolean boolToInt) {
+	this.boolToInt = boolToInt;
+}
 }

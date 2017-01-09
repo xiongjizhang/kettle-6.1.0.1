@@ -34,6 +34,10 @@ public class ValueMetaBoolean extends ValueMetaBase implements ValueMetaInterfac
   public ValueMetaBoolean( String name ) {
     super( name, ValueMetaInterface.TYPE_BOOLEAN );
   }
+  
+  public ValueMetaBoolean( int length){
+	  super(null, ValueMetaInterface.TYPE_BOOLEAN, length, -1);
+  }
 
   @Override
   public Object getNativeDataType( Object object ) throws KettleValueException {

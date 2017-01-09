@@ -151,6 +151,10 @@ public class TextFileOutputDialog extends BaseStepDialog implements StepDialogIn
   private Label wlEndedLine;
   private Text wEndedLine;
   private FormData fdlEndedLine, fdEndedLine;
+  
+  private Label wlBoolToInt;
+  private Button wBoolToInt;
+  private FormData fdlBoolToInt, fdBoolToInt;
 
   private Label wlEnclForced;
   private Button wEnclForced;
@@ -1024,6 +1028,31 @@ public class TextFileOutputDialog extends BaseStepDialog implements StepDialogIn
     fdEndedLine.top = new FormAttachment( wSplitEvery, margin );
     fdEndedLine.right = new FormAttachment( 100, 0 );
     wEndedLine.setLayoutData( fdEndedLine );
+    
+    wlBoolToInt = new Label( wContentComp, SWT.RIGHT );
+    wlBoolToInt.setText( BaseMessages.getString( PKG, "TextFileOutputDialog.BoolToInt.Label" ) );
+    props.setLook( wlBoolToInt );
+    fdlBoolToInt = new FormData();
+    fdlBoolToInt.left = new FormAttachment( 0, 0 );
+    fdlBoolToInt.top = new FormAttachment( wEndedLine, margin );
+    fdlBoolToInt.right = new FormAttachment( middle, -margin );
+    wlBoolToInt.setLayoutData( fdlBoolToInt );
+    wBoolToInt = new Button( wContentComp, SWT.CHECK );
+    props.setLook( wBoolToInt );
+    fdBoolToInt = new FormData();
+    fdBoolToInt.left = new FormAttachment( middle, 0 );
+    fdBoolToInt.top = new FormAttachment( wEndedLine, margin );
+    fdBoolToInt.right = new FormAttachment( 100, 0 );
+    wBoolToInt.setLayoutData( fdBoolToInt );
+    wBoolToInt.addSelectionListener( new SelectionAdapter() {
+      public void widgetSelected( SelectionEvent e ) {
+        input.setBoolToInt(!input.getBoolToInt());
+      }
+
+      private void headerDisabling() {
+        
+      }
+    } );
 
     fdContentComp = new FormData();
     fdContentComp.left = new FormAttachment( 0, 0 );
@@ -1500,6 +1529,7 @@ public class TextFileOutputDialog extends BaseStepDialog implements StepDialogIn
     wPad.setSelection( input.isPadded() );
     wFastDump.setSelection( input.isFastDump() );
     wAddToResult.setSelection( input.isAddToResultFiles() );
+    wBoolToInt.setSelection(input.getBoolToInt());
 
     logDebug( "getting fields info..." );
 

@@ -43,6 +43,7 @@ import org.pentaho.di.core.exception.KettleValueException;
 import org.pentaho.di.core.fileinput.CharsetToolkit;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.row.ValueMetaInterface;
+import org.pentaho.di.core.row.value.ValueMetaBoolean;
 import org.pentaho.di.core.util.EnvUtil;
 import org.pentaho.di.core.util.StreamLogger;
 import org.pentaho.di.core.variables.VariableSpace;
@@ -286,6 +287,8 @@ public class TextFileOutput extends BaseStep implements StepInterface {
         //
         return convertStringToBinaryString( v, Const.trimToType( svalue, v.getTrimType() ) );
       }
+    } else if (v.isBoolean() && meta.getBoolToInt()){
+      return new ValueMetaBoolean(-2).getBinaryString(valueData);
     } else {
       return v.getBinaryString( valueData );
     }
