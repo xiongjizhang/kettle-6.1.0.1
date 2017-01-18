@@ -94,12 +94,17 @@ public class InsertUpdateMeta extends BaseStepMeta implements StepMetaInterface,
 
   /** boolean indicating if field needs to be updated */
   private Boolean[] update;
+  
+  /** boolean indicating if field needs to compare witch row need to updated */
+  private Boolean[] compareToUpdate;
 
   /** Commit size for inserts/updates */
   private String commitSize;
 
   /** Bypass any updates */
   private boolean updateBypassed;
+  
+  private List<DatabaseMeta> databaseMetas;
 
   public InsertUpdateMeta() {
     super(); // allocate BaseStepMeta
@@ -278,9 +283,18 @@ public class InsertUpdateMeta extends BaseStepMeta implements StepMetaInterface,
   public void setUpdate( Boolean[] update ) {
     this.update = update;
   }
+  
+  public Boolean[] getCompareToUpdate() {
+    return compareToUpdate;
+  }
+
+  public void setCompareToUpdate( Boolean[] compareToUpdate ) {
+    this.compareToUpdate = compareToUpdate;
+  }
 
   public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws KettleXMLException {
     readData( stepnode, databases );
+    this.databaseMetas = databases;
   }
 
   public void allocate( int nrkeys, int nrvalues ) {
@@ -291,6 +305,7 @@ public class InsertUpdateMeta extends BaseStepMeta implements StepMetaInterface,
     updateLookup = new String[nrvalues];
     updateStream = new String[nrvalues];
     update = new Boolean[nrvalues];
+    compareToUpdate = new Boolean[nrvalues];
   }
 
   public Object clone() {
@@ -308,6 +323,7 @@ public class InsertUpdateMeta extends BaseStepMeta implements StepMetaInterface,
     System.arraycopy( updateLookup, 0, retval.updateLookup, 0, nrvalues );
     System.arraycopy( updateStream, 0, retval.updateStream, 0, nrvalues );
     System.arraycopy( update, 0, retval.update, 0, nrvalues );
+    System.arraycopy( compareToUpdate, 0, retval.compareToUpdate, 0, nrvalues );
 
     return retval;
   }
@@ -362,6 +378,17 @@ public class InsertUpdateMeta extends BaseStepMeta implements StepMetaInterface,
             update[i] = Boolean.FALSE;
           }
         }
+        String compareToUpdateValue = XMLHandler.getTagValue( vnode, "compare_to_update" );
+        if ( compareToUpdateValue == null ) {
+          // default TRUE
+          compareToUpdate[i] = Boolean.TRUE;
+        } else {
+          if ( compareToUpdateValue.equalsIgnoreCase( "Y" ) ) {
+        	 compareToUpdate[i] = Boolean.TRUE;
+          } else {
+        	 compareToUpdate[i] = Boolean.FALSE;
+          }
+        }
       }
     } catch ( Exception e ) {
       throw new KettleXMLException( BaseMessages.getString(
@@ -393,6 +420,7 @@ public class InsertUpdateMeta extends BaseStepMeta implements StepMetaInterface,
       updateLookup[i] = BaseMessages.getString( PKG, "InsertUpdateMeta.ColumnName.ReturnField" ) + i;
       updateStream[i] = BaseMessages.getString( PKG, "InsertUpdateMeta.ColumnName.NewName" ) + i;
       update[i] = Boolean.TRUE;
+      compareToUpdate[i] = Boolean.TRUE;
     }
   }
 
@@ -422,6 +450,7 @@ public class InsertUpdateMeta extends BaseStepMeta implements StepMetaInterface,
       retval.append( "        " ).append( XMLHandler.addTagValue( "name", updateLookup[i] ) );
       retval.append( "        " ).append( XMLHandler.addTagValue( "rename", updateStream[i] ) );
       retval.append( "        " ).append( XMLHandler.addTagValue( "update", update[i].booleanValue() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "compare_to_update", compareToUpdate[i].booleanValue() ) );
       retval.append( "      </value>" ).append( Const.CR );
     }
 
@@ -466,6 +495,7 @@ public class InsertUpdateMeta extends BaseStepMeta implements StepMetaInterface,
         updateLookup[i] = rep.getStepAttributeString( id_step, i, "value_name" );
         updateStream[i] = rep.getStepAttributeString( id_step, i, "value_rename" );
         update[i] = Boolean.valueOf( rep.getStepAttributeBoolean( id_step, i, "value_update", true ) );
+        compareToUpdate[i] = Boolean.valueOf( rep.getStepAttributeBoolean( id_step, i, "value_compare_to_update", true ) );
       }
     } catch ( Exception e ) {
       throw new KettleException( BaseMessages.getString(
@@ -492,6 +522,7 @@ public class InsertUpdateMeta extends BaseStepMeta implements StepMetaInterface,
         rep.saveStepAttribute( id_transformation, id_step, i, "value_name", updateLookup[i] );
         rep.saveStepAttribute( id_transformation, id_step, i, "value_rename", updateStream[i] );
         rep.saveStepAttribute( id_transformation, id_step, i, "value_update", update[i].booleanValue() );
+        rep.saveStepAttribute( id_transformation, id_step, i, "value_compare_to_update", compareToUpdate[i].booleanValue() );
       }
 
       // Also, save the step-database relationship!
@@ -912,4 +943,12 @@ public class InsertUpdateMeta extends BaseStepMeta implements StepMetaInterface,
   public List<StepInjectionMetaEntry> extractStepMetadataEntries() throws KettleException {
     return getStepMetaInjectionInterface().extractStepMetadataEntries();
   }
+
+public List<DatabaseMeta> getDatabaseMetas() {
+	return databaseMetas;
+}
+
+public void setDatabaseMetas(List<DatabaseMeta> databaseMetas) {
+	this.databaseMetas = databaseMetas;
+}
 }

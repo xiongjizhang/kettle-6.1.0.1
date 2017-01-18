@@ -356,7 +356,7 @@ public class InsertUpdateDialog extends BaseStepDialog implements StepDialogInte
     fdlReturn.top = new FormAttachment( wKey, margin );
     wlReturn.setLayoutData( fdlReturn );
 
-    int UpInsCols = 3;
+    int UpInsCols = 4;
     int UpInsRows = ( input.getUpdateLookup() != null ? input.getUpdateLookup().length : 1 );
 
     ciReturn = new ColumnInfo[UpInsCols];
@@ -371,6 +371,10 @@ public class InsertUpdateDialog extends BaseStepDialog implements StepDialogInte
     ciReturn[2] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "InsertUpdateDialog.ColumnInfo.Update" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
+        new String[] { "Y", "N" } );
+    ciReturn[3] =
+      new ColumnInfo(
+        BaseMessages.getString( PKG, "InsertUpdateDialog.ColumnInfo.CompareToUpdate" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] { "Y", "N" } );
     tableFieldColumns.add( ciReturn[0] );
     wReturn =
@@ -695,6 +699,11 @@ public class InsertUpdateDialog extends BaseStepDialog implements StepDialogInte
         } else {
           item.setText( 3, "N" );
         }
+        if ( input.getCompareToUpdate() == null || input.getCompareToUpdate()[i] ) {
+	      item.setText( 4, "Y" );
+	    } else {
+	      item.setText( 4, "N" );
+	    }
       }
     }
 
@@ -757,6 +766,7 @@ public class InsertUpdateDialog extends BaseStepDialog implements StepDialogInte
       inf.getUpdateLookup()[i] = item.getText( 1 );
       inf.getUpdateStream()[i] = item.getText( 2 );
       inf.getUpdate()[i] = "Y".equals( item.getText( 3 ) );
+      inf.getCompareToUpdate()[i] = "Y".equals( item.getText( 4 ) );
     }
 
     inf.setSchemaName( wSchema.getText() );
@@ -927,6 +937,7 @@ public class InsertUpdateDialog extends BaseStepDialog implements StepDialogInte
         TableItemInsertListener listener = new TableItemInsertListener() {
           public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v ) {
             tableItem.setText( 3, "Y" );
+            tableItem.setText( 4, "Y" );
             return true;
           }
         };
