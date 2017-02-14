@@ -47,10 +47,12 @@ import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.BaseStepMeta;
 import org.pentaho.di.trans.step.StepDataInterface;
+import org.pentaho.di.trans.step.StepInjectionMetaEntry;
 import org.pentaho.di.trans.step.StepInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
 import org.pentaho.di.trans.step.utils.RowMetaUtils;
+import org.pentaho.di.trans.steps.insertupdate.InsertUpdateMetaInject;
 import org.pentaho.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -103,6 +105,8 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
 
   /** Flag to indicate the use of batch updates, enabled by default but disabled for backward compatibility */
   private boolean useBatchUpdate;
+  
+  private List<DatabaseMeta> databaseMetas;
 
   public UpdateMeta() {
     super(); // allocate BaseStepMeta
@@ -321,6 +325,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
 
   public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws KettleXMLException {
     readData( stepnode, databases );
+    this.databaseMetas = databases;
   }
 
   public void allocate( int nrkeys, int nrvalues ) {
@@ -894,5 +899,22 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
   public void setUseBatchUpdate( boolean useBatchUpdate ) {
     this.useBatchUpdate = useBatchUpdate;
   }
+  
+  @Override
+  public UpdateMetaInject getStepMetaInjectionInterface() {
+    return new UpdateMetaInject( this );
+  }
+
+  public List<StepInjectionMetaEntry> extractStepMetadataEntries() throws KettleException {
+    return getStepMetaInjectionInterface().extractStepMetadataEntries();
+  }
+
+public List<DatabaseMeta> getDatabaseMetas() {
+	return databaseMetas;
+}
+
+public void setDatabaseMetas(List<DatabaseMeta> databaseMetas) {
+	this.databaseMetas = databaseMetas;
+}
 
 }
