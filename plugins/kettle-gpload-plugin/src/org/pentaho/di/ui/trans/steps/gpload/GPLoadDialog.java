@@ -1006,13 +1006,12 @@ public class GPLoadDialog extends BaseStepDialog implements StepDialogInterface 
 
     ciReturn[3] =
         new ColumnInfo( BaseMessages.getString( PKG, "GPLoadDialog.ColumnInfo.ColumnMatch" ),
-            ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { BaseMessages.getString( PKG, "System.Combo.Yes" ),
-              BaseMessages.getString( PKG, "System.Combo.No" ) }, true );
+            ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { // BaseMessages.getString( PKG, "System.Combo.Yes" ), BaseMessages.getString( PKG, "System.Combo.No" )
+              "Y","N" }, true );
 
     ciReturn[4] =
         new ColumnInfo( BaseMessages.getString( PKG, "GPLoadDialog.ColumnInfo.ColumnUpdate" ),
-            ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { BaseMessages.getString( PKG, "System.Combo.Yes" ),
-              BaseMessages.getString( PKG, "System.Combo.No" ) }, true );
+            ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "Y","N"  }, true );
 
     tableFieldColumns.add( ciReturn[0] );
 

@@ -283,7 +283,7 @@ public class GPLoad extends BaseStep implements StepInterface {
         .append( GPLoad.SINGLE_QUOTE ).append( Const.CR );
 //  if ( !Const.isEmpty( meta.getNullAs() ) ) {
     if ( !Const.isEmpty( meta.getNullAs() ) ) {
-      contents.append( GPLoad.INDENT ).append( "- NULL_AS: " ).append( GPLoad.SINGLE_QUOTE ).append( meta.getNullAs() ).append( GPLoad.SINGLE_QUOTE ).append( Const.CR );
+      contents.append( GPLoad.INDENT ).append( "- NULL_AS: " ).append( GPLoad.SINGLE_QUOTE ).append( meta.getNullAs().trim() ).append( GPLoad.SINGLE_QUOTE ).append( Const.CR );
     }
 
     // TODO: implement escape character
