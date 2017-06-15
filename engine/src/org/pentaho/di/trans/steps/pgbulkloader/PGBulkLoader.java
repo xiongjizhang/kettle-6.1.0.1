@@ -333,6 +333,8 @@ public class PGBulkLoader extends BaseStep implements StepInterface {
         Object valueData = r[index];
 
         if ( valueData != null ) {
+        	System.out.println(valueMeta.getType());
+        	System.out.println(valueMeta.getDate( valueData ));
           switch ( valueMeta.getType() ) {
             case ValueMetaInterface.TYPE_STRING:
               data.pgOutputStream.write( data.quote );

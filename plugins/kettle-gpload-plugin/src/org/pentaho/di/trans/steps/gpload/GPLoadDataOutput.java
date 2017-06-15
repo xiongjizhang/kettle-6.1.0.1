@@ -233,9 +233,9 @@ public class GPLoadDataOutput {
             Boolean b = mi.getBoolean( row, number );
             output.print( enclosure );
             if ( b.booleanValue() ) {
-              output.print( "Y" );
+              output.print( "1" ); // output.print( "Y" );
             } else {
-              output.print( "N" );
+              output.print( "0" ); // output.print( "N" );
             }
             output.print( enclosure );
             break;

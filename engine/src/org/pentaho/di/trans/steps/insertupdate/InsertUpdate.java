@@ -137,6 +137,7 @@ public class InsertUpdate extends BaseStep implements StepInterface {
 
             if ( retMeta.compare( retvalue, valueMeta, rowvalue ) != 0 ) {
               update = true;
+              break;
             }
           }
         }

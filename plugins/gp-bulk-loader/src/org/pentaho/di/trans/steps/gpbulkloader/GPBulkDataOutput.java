@@ -185,6 +185,18 @@ public class GPBulkDataOutput {
             }
             output.print( enclosure );
             break;
+          case ValueMetaInterface.TYPE_TIMESTAMP:
+	          Date dt2 = mi.getDate( row, number );
+	          output.print( enclosure );
+	          String mask2 = meta.getDateMask()[i];
+	          if ( GPBulkLoaderMeta.DATE_MASK_DATETIME.equals( mask2 ) ) {
+	            output.print( sdfDateTime.format( dt2 ) );
+	          } else {
+	            // Default is date format
+	            output.print( sdfDate.format( dt2 ) );
+	          }
+	          output.print( enclosure );
+	          break;
           case ValueMetaInterface.TYPE_BOOLEAN:
             Boolean b = mi.getBoolean( row, number );
             output.print( enclosure );

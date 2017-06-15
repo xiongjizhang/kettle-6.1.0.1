@@ -25,12 +25,14 @@ package org.pentaho.di.trans.steps.tableoutput;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.ValueMetaInterface;
 import org.pentaho.di.trans.step.StepInjectionMetaEntry;
 import org.pentaho.di.trans.step.StepInjectionUtil;
 import org.pentaho.di.trans.step.StepMetaInjectionEntryInterface;
 import org.pentaho.di.trans.step.StepMetaInjectionInterface;
+import org.pentaho.di.trans.steps.tableinput.TableInputMetaInjection.Entry;
 
 /**
  * This takes care of the external metadata injection into the TableOutputMeta class
@@ -41,6 +43,7 @@ public class TableOutputMetaInjection implements StepMetaInjectionInterface {
 
   public enum Entry implements StepMetaInjectionEntryInterface {
 
+	  DATABASE_META(ValueMetaInterface.TYPE_STRING, "the database"),
     TARGET_SCHEMA( ValueMetaInterface.TYPE_STRING, "The target schema" ),
       TARGET_TABLE( ValueMetaInterface.TYPE_STRING, "The target table" ),
       COMMIT_SIZE( ValueMetaInterface.TYPE_STRING, "The commit size" ),
@@ -105,7 +108,7 @@ public class TableOutputMetaInjection implements StepMetaInjectionInterface {
 
     Entry[] topEntries =
       new Entry[] {
-        Entry.TARGET_SCHEMA, Entry.TARGET_TABLE, Entry.COMMIT_SIZE, Entry.TRUNCATE_TABLE,
+        Entry.DATABASE_META, Entry.TARGET_SCHEMA, Entry.TARGET_TABLE, Entry.COMMIT_SIZE, Entry.TRUNCATE_TABLE,
         Entry.SPECIFY_DATABASE_FIELDS, Entry.IGNORE_INSERT_ERRORS, Entry.USE_BATCH_UPDATE,
         Entry.PARTITION_OVER_TABLES, Entry.PARTITIONING_FIELD, Entry.PARTITION_DATA_PER,
         Entry.TABLE_NAME_DEFINED_IN_FIELD, Entry.TABLE_NAME_FIELD, Entry.STORE_TABLE_NAME,
@@ -182,6 +185,9 @@ public class TableOutputMetaInjection implements StepMetaInjectionInterface {
           }
           break;
 
+        case DATABASE_META:
+	    	meta.setDatabaseMeta(DatabaseMeta.findDatabase(meta.getDatabaseMetas(), lookValue));
+	    	break;
         case TARGET_SCHEMA:
           meta.setSchemaName( lookValue );
           break;
@@ -244,6 +250,7 @@ public class TableOutputMetaInjection implements StepMetaInjectionInterface {
   public List<StepInjectionMetaEntry> extractStepMetadataEntries() throws KettleException {
     List<StepInjectionMetaEntry> list = new ArrayList<StepInjectionMetaEntry>();
 
+    list.add( StepInjectionUtil.getEntry( Entry.DATABASE_META, meta.getDatabaseMeta() ) );
     list.add( StepInjectionUtil.getEntry( Entry.TARGET_SCHEMA, meta.getSchemaName() ) );
     list.add( StepInjectionUtil.getEntry( Entry.TARGET_TABLE, meta.getTableName() ) );
     list.add( StepInjectionUtil.getEntry( Entry.COMMIT_SIZE, meta.getCommitSize() ) );

@@ -97,6 +97,8 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
 
   /** Fields in the table to insert */
   private String[] fieldDatabase;
+  
+  private List<DatabaseMeta> databaseMetas;
 
   /**
    * @return Returns the generatedKeyField.
@@ -252,6 +254,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
 
   public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws KettleXMLException {
     readData( stepnode, databases );
+    this.databaseMetas = databases;
   }
 
   public Object clone() {
@@ -983,5 +986,13 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   public List<StepInjectionMetaEntry> extractStepMetadataEntries() throws KettleException {
     return getStepMetaInjectionInterface().extractStepMetadataEntries();
   }
+
+public List<DatabaseMeta> getDatabaseMetas() {
+	return databaseMetas;
+}
+
+public void setDatabaseMetas(List<DatabaseMeta> databaseMetas) {
+	this.databaseMetas = databaseMetas;
+}
 
 }
