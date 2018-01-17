@@ -29,6 +29,8 @@ import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.exception.KettleXMLException;
+import org.pentaho.di.core.injection.Injection;
+import org.pentaho.di.core.injection.InjectionSupported;
 import org.pentaho.di.core.row.RowMeta;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.row.ValueMetaInterface;
@@ -57,83 +59,115 @@ import org.w3c.dom.Node;
 @Step( id = "GPLoad", image = "BLKGP.svg", i18nPackageName = "org.pentaho.di.trans.steps.gpload",
     name = "GPLoad.TypeLongDesc", description = "GPLoad.TypeLongDesc",
     categoryDescription = "i18n:org.pentaho.di.trans.step:BaseStep.Category.Bulk" )
+@InjectionSupported( localizationPrefix = "GPLoad.Injection.", groups = { "FIELDS", "LOCALHOSTS", "GP_CONFIG" } )
 public class GPLoadMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = GPLoadMeta.class; // for i18n purposes, needed by Translator2!!
 
   /** Collection of Local hosts **/
+  @Injection( name = "LOCALHOST_NAME", group = "LOCALHOSTS" )
   private String[] localHosts;
 
   /** LocalHostPort **/
+  @Injection( name = "PORT", group = "LOCALHOSTS" )
   private String localhostPort;
 
   /** what's the schema for the target? */
+  @Injection( name = "SCHEMA_NAME" )
   private String schemaName;
 
   /** what's the table for the target? */
+  @Injection( name = "TABLE_NAME" )
   private String tableName;
 
   /** what's the target of the error table? */
+  @Injection( name = "ERROR_TABLE", group = "GP_CONFIG" )
   private String errorTableName;
 
   /** Path to the gpload utility */
+  @Injection( name = "GPLOAD_PATH", group = "GP_CONFIG" )
   private String gploadPath;
 
   /** Path to the control file */
+  @Injection( name = "CONTROL_FILE", group = "GP_CONFIG" )
   private String controlFile;
 
   /** Path to the data file */
+  @Injection( name = "DATA_FILE", group = "GP_CONFIG" )
   private String dataFile;
 
   /** Path to the log file */
+  @Injection( name = "LOG_FILE", group = "GP_CONFIG" )
   private String logFile;
 
   /** NULL_AS parameter for gpload - gpload treats values matching this string as null */
+  @Injection( name = "NULL_AS", group = "GP_CONFIG" )
   private String nullAs;
 
   /** database connection */
   private DatabaseMeta databaseMeta;
 
   /** Specified database field */
+  @Injection( name = "FIELD_TABLE", group = "FIELDS" )
   private String[] fieldTable;
 
   /** Field name in the stream */
+  @Injection( name = "FIELD_STREAM", group = "FIELDS" )
   private String[] fieldStream;
 
   /** Database column to match on for an update or merge operation */
+  @Injection( name = "FIELD_MATCH", group = "FIELDS" )
   private boolean[] matchColumn;
 
   /** Database columns to update */
+  @Injection( name = "FIELD_UPDATE", group = "FIELDS" )
   private boolean[] updateColumn;
 
   /** the date mask to use if the value is a date */
+  @Injection( name = "FIELD_DATEMASK", group = "FIELDS" )
   private String[] dateMask;
 
   /** maximum errors */
+  @Injection( name = "MAX_ERRORS", group = "GP_CONFIG" )
   private String maxErrors;
 
   /** Load method */
+  @Injection( name = "LOAD_METHOD" )
   private String loadMethod;
 
   /** Load action */
+  @Injection( name = "LOAD_ACTION", group = "FIELDS" )
   private String loadAction;
 
   /** Encoding to use */
+  @Injection( name = "ENCODING", group = "GP_CONFIG" )
   private String encoding;
 
   /** Erase files after use */
+  @Injection( name = "ERASE_FILE" )
   private boolean eraseFiles;
 
   /** Boolean to indicate that numbers are to be enclosed */
+  @Injection( name = "ENCLOSURE_NUMBERS" )
   private boolean encloseNumbers;
 
   /** Data file delimiter */
+  @Injection( name = "DELIMITER", group = "GP_CONFIG" )
   private String delimiter;
 
   /** Default number of maximum errors allowed on a load */
   public static String MAX_ERRORS_DEFAULT = "50";
 
   /** Update condition **/
+  @Injection( name = "UPDATE_CONDITIONS", group = "FIELDS" )
   private String updateCondition;
+  
+  /** Erase files after use */
+  @Injection( name = "REUSE_TABLES" )
+  private boolean reuseTables;
+  
+  /** Encoding to use */
+  @Injection( name = "MAX_LINE_LENGTH", group = "GP_CONFIG" )
+  private String maxLineLength;
 
   /*
    * Encodings supported by GPLoad. This list was obtained from the GPAAdminGuide.
@@ -311,6 +345,9 @@ public class GPLoadMeta extends BaseStepMeta implements StepMetaInterface {
       eraseFiles = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "erase_files" ) );
       encoding = XMLHandler.getTagValue( stepnode, "encoding" );
       updateCondition = XMLHandler.getTagValue( stepnode, "update_condition" );
+      
+      maxLineLength = XMLHandler.getTagValue(stepnode, "max_line_length");
+      reuseTables = "Y".equalsIgnoreCase(XMLHandler.getTagValue(stepnode, "reuse_tables"));
 
       Node localHostsNode = XMLHandler.getSubNode( stepnode, "local_hosts" );
       int nLocalHosts = XMLHandler.countNodes( localHostsNode, "local_host" );
@@ -377,6 +414,9 @@ public class GPLoadMeta extends BaseStepMeta implements StepMetaInterface {
     encloseNumbers = false;
     eraseFiles = true;
     updateCondition = "";
+    
+    maxLineLength = "1000000";
+    reuseTables = true;
 
     allocate( 0 );
     allocateLocalHosts( 0 );
@@ -404,6 +444,9 @@ public class GPLoadMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "    " ).append( XMLHandler.addTagValue( "enclose_numbers", ( encloseNumbers ? "Y" : "N" ) ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "localhost_port", localhostPort ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "update_condition", updateCondition ) );
+    
+    retval.append( "    " ).append( XMLHandler.addTagValue( "max_line_length", maxLineLength ) );
+    retval.append( "    " ).append( XMLHandler.addTagValue( "reuse_tables", reuseTables ) );
 
     for ( int i = 0; i < fieldTable.length; i++ ) {
       retval.append( "      <mapping>" ).append( Const.CR );
@@ -442,6 +485,8 @@ public class GPLoadMeta extends BaseStepMeta implements StepMetaInterface {
       nullAs = rep.getStepAttributeString( id_step, "null_as" );
       eraseFiles = rep.getStepAttributeBoolean( id_step, "erase_files" );
       encoding = rep.getStepAttributeString( id_step, "encoding" );
+      maxLineLength = rep.getStepAttributeString(id_step, "max_line_lenght");
+      reuseTables = rep.getStepAttributeBoolean(id_step, "reuse_tables");
       localhostPort = rep.getStepAttributeString( id_step, "localhost_port" );
       encloseNumbers =
           ( rep.getStepAttributeString( id_step, "enclose_numbers" ).equalsIgnoreCase( "Y" ) ? true : false );
@@ -490,6 +535,8 @@ public class GPLoadMeta extends BaseStepMeta implements StepMetaInterface {
       rep.saveStepAttribute( id_transformation, id_step, "enclose_numbers", ( encloseNumbers ? "Y" : "N" ) );
       rep.saveStepAttribute( id_transformation, id_step, "localhost_port", localhostPort );
       rep.saveStepAttribute( id_transformation, id_step, "update_condition", updateCondition );
+      rep.saveStepAttribute( id_transformation, id_step, "max_line_length", maxLineLength );
+      rep.saveStepAttribute( id_transformation, id_step, "reuse_tables", reuseTables );
 
       for ( int i = 0; i < localHosts.length; i++ ) {
         rep.saveStepAttribute( id_transformation, id_step, i, "local_host", localHosts[i] );
@@ -935,4 +982,20 @@ public class GPLoadMeta extends BaseStepMeta implements StepMetaInterface {
   public String getUpdateCondition() {
     return updateCondition;
   }
+
+public boolean isReuseTables() {
+	return reuseTables;
+}
+
+public void setReuseTables(boolean reuseTables) {
+	this.reuseTables = reuseTables;
+}
+
+public String getMaxLineLength() {
+	return maxLineLength;
+}
+
+public void setMaxLineLength(String maxLineLength) {
+	this.maxLineLength = maxLineLength;
+}
 }

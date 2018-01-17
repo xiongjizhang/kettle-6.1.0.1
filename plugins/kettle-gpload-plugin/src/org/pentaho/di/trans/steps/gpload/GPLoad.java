@@ -53,6 +53,8 @@ import org.pentaho.di.trans.step.StepInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
 
+import com.sun.syndication.feed.rss.Enclosure;
+
 /**
  * Performs a bulk load to an Greenplum table.
  * 
@@ -278,7 +280,13 @@ public class GPLoad extends BaseStep implements StepInterface {
 
     // See also page 155 for formatting information & escaping
     // delimiter validation should have been perfomed
-    contents.append( GPLoad.INDENT ).append( "- FORMAT: TEXT" ).append( Const.CR );
+    contents.append( GPLoad.INDENT ).append( "- FORMAT: TEXT" ).append( Const.CR ); 
+    
+    String maxLineLengthString = meta.getMaxLineLength();
+    if (maxLineLengthString != null ){
+    	contents.append( GPLoad.INDENT ).append( "- MAX_LINE_LENGTH: " ).append(maxLineLengthString).append( Const.CR ); // add gpfdist max_length default 32768
+    }
+    
     contents.append( GPLoad.INDENT ).append( "- DELIMITER: " ).append( GPLoad.SINGLE_QUOTE ).append( delimiter )
         .append( GPLoad.SINGLE_QUOTE ).append( Const.CR );
 //  if ( !Const.isEmpty( meta.getNullAs() ) ) {
@@ -387,7 +395,13 @@ public class GPLoad extends BaseStep implements StepInterface {
         }
       }
     }
-
+    
+    // -------------- REUSE extenal table     
+    if (meta.isReuseTables()){
+    	contents.append( GPLoad.INDENT ).append( "PRELOAD:" ).append( Const.CR );
+        contents.append( GPLoad.INDENT ).append( "- REUSE_TABLES: true" ).append( Const.CR );
+    }
+    
     return contents.toString();
   }
 

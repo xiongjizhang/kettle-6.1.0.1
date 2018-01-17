@@ -4380,6 +4380,28 @@ public class Database implements VariableSpace, LoggingObjectInterface {
                 }
               }
               break;
+            case ValueMetaInterface.TYPE_TIMESTAMP:
+            	Date date1 = fields.getDate( r, i );
+                
+                if ( Const.isEmpty( dateFormat ) ) {
+                  if ( databaseMeta.getDatabaseInterface() instanceof OracleDatabaseMeta ) {
+                    if ( fieldDateFormatters[ i ] == null ) {
+                      fieldDateFormatters[ i ] = new java.text.SimpleDateFormat( "yyyy/MM/dd HH:mm:ss" );
+                    }
+                    ins.append( "TO_DATE('" ).append( fieldDateFormatters[ i ].format( date1 ) ).append(
+                      "', 'YYYY/MM/DD HH24:MI:SS')" );
+                  } else {
+                    ins.append( "'" + fields.getString( r, i ) + "'" );
+                  }
+                } else {
+                  try {
+                    java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat( dateFormat );
+                    ins.append( "'" + formatter.format( fields.getDate( r, i ) ) + "'" );
+                  } catch ( Exception e ) {
+                    throw new KettleDatabaseException( "Error : ", e );
+                  }
+                }
+                break;
             default:
               ins.append( fields.getString( r, i ) );
               break;

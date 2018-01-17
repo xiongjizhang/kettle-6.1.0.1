@@ -112,6 +112,8 @@ public class GPLoadDialog extends BaseStepDialog implements StepDialogInterface 
   private GPLoadMeta input;
   private TextVar wDelimiter;
   private Text wUpdateCondition;
+  private Button wReuseTables;
+  private TextVar wMaxLineLength;  
 
   /**
    * List of ColumnInfo that should have the field names of the selected database table
@@ -682,6 +684,12 @@ public class GPLoadDialog extends BaseStepDialog implements StepDialogInterface 
       wUpdateCondition.setText( input.getUpdateCondition() );
     }
     this.wEraseFiles.setSelection( input.isEraseFiles() );
+    
+    this.wReuseTables.setSelection( input.isReuseTables());
+    
+    if ( input.getMaxLineLength() != null ) {
+      wMaxLineLength.setText( input.getMaxLineLength() );
+    }
 
     String method = input.getLoadMethod();
     // if ( GPLoadMeta.METHOD_AUTO_CONCURRENT.equals(method) )
@@ -775,6 +783,9 @@ public class GPLoadDialog extends BaseStepDialog implements StepDialogInterface 
     inf.setLocalhostPort( wLocalhostPort.getText() );
     inf.setDelimiter( wDelimiter.getText() );
     inf.setUpdateCondition( wUpdateCondition.getText() );
+    
+    inf.setReuseTables(wReuseTables.getSelection());
+    inf.setMaxLineLength( wMaxLineLength.getText() );
 
     /*
      * Set the loadmethod
@@ -1358,6 +1369,45 @@ public class GPLoadDialog extends BaseStepDialog implements StepDialogInterface 
     fdEncoding.right = new FormAttachment( 75, 0 );
     wEncoding.setLayoutData( fdEncoding );
     wEncoding.addModifyListener( lsMod );
+    
+    Label wlMaxLineLength = new Label( wGPConfigTabComp, SWT.RIGHT );
+    wlMaxLineLength.setText( "Max Line Length : " );
+    props.setLook( wlMaxLineLength );
+    FormData fdlMaxLineLength = new FormData();
+    fdlMaxLineLength.left = new FormAttachment( 0, 0 );
+    fdlMaxLineLength.top = new FormAttachment( wEncoding, margin );
+    fdlMaxLineLength.right = new FormAttachment( middle, -margin );
+    wlMaxLineLength.setLayoutData( fdlMaxLineLength );
+    
+    wMaxLineLength = new TextVar( transMeta, wGPConfigTabComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    props.setLook( wMaxLineLength );
+    wMaxLineLength.addModifyListener( lsMod );
+    FormData fdMaxLineLength = new FormData();
+    fdMaxLineLength.left = new FormAttachment( middle, 0 );
+    fdMaxLineLength.top = new FormAttachment( wEncoding, margin );
+    wMaxLineLength.setLayoutData( fdMaxLineLength );
+    
+    
+    Label wlReuseTables = new Label( wGPConfigTabComp, SWT.RIGHT );
+    wlReuseTables.setText( "Reuse Tables" );
+    props.setLook( wlReuseTables );
+    FormData fdlReuseTables = new FormData();
+    fdlReuseTables.left = new FormAttachment( 0, 0 );
+    fdlReuseTables.top = new FormAttachment( wMaxLineLength, margin );
+    fdlReuseTables.right = new FormAttachment( middle, -margin );
+    wlReuseTables.setLayoutData( fdlReuseTables );
+    
+    wReuseTables = new Button( wGPConfigTabComp, SWT.CHECK );
+    props.setLook( wReuseTables );
+    FormData fdReuseTables = new FormData();
+    fdReuseTables.left = new FormAttachment( middle, 0 );
+    fdReuseTables.top = new FormAttachment( wMaxLineLength, margin );
+    wReuseTables.setLayoutData( fdReuseTables );
+    wReuseTables.addSelectionListener( new SelectionAdapter() {
+      public void widgetSelected( SelectionEvent e ) {
+        input.setChanged();
+      }
+    } );
 
     wGPConfigTabComp.layout();
     tabItem.setControl( wGPConfigTabComp );
@@ -1424,4 +1474,20 @@ public class GPLoadDialog extends BaseStepDialog implements StepDialogInterface 
       }
     } );
   }
+
+public Button getwReuseTables() {
+	return wReuseTables;
+}
+
+public void setwReuseTables(Button wReuseTables) {
+	this.wReuseTables = wReuseTables;
+}
+
+public TextVar getwMaxLineLength() {
+	return wMaxLineLength;
+}
+
+public void setwMaxLineLength(TextVar wMaxLineLength) {
+	this.wMaxLineLength = wMaxLineLength;
+}
 }
